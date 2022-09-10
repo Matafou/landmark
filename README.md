@@ -74,22 +74,19 @@ If you are not happy with the two predefined configurations
 you can map keys differently. For that you have two possible levels of
 configuration:
 
-1- `(landmark-assign-three-standard-keys CHAR \'KEY)` assigns the
+1. `(landmark-assign-three-standard-keys CHAR \'KEY)` assigns the
 three variants of the keystrokes `KEY` to landmark CHAR. See below for
 details.
-
-    ```elisp
+```elisp
     (landmark-assign-three-standard-keys ?0 'kp-0)
     (landmark-assign-three-standard-keys ?0 'kp-insert)
-    ```
-
-2- `landmark-assign-keys` for mapping three independent keystrokes to
+```
+2. `landmark-assign-keys` for mapping three independent keystrokes to
 a landmark. For instance the follwong binds `shift + numpad-1` to
 jumping to landmark `?1` instead of `numpad-1`:
-
-    ```elisp
-    (landmark-assign-keys ?1 [(control kp-1)] [(control shift kp-end)] [(shift kp-end)])
-    ```
+```elisp
+(landmark-assign-keys ?1 [(control kp-1)] [(control shift kp-end)] [(shift kp-end)])
+```
 
 By the way: be careful with shift and numpad, as `shift numpad 1` is
 recognized by emacs as `(shift kp-end)` instead of `(shift kp-1)`.
