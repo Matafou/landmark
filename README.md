@@ -3,10 +3,22 @@
 This package provides so called "landmarks" to emacs.
 
 Landmarks are a fast navigation facility for emacs, based on emacs
-"registers", but faster to use. The main idea is to attach (some kind
-of) registers to **keyboard keys** (typically a numpad key or an "f"
-key) instead of characters. Hitting just one key makes the jump, and a
-simple keystroke sets the landmark.
+"registers", but faster to use. Similarly to an emacs register, a
+landmark is a location where you might want to come back later. Unlike
+registers it is either
+
+- a buffer (jumping back to a \"buffer landmark\" jumps to the buffer
+  at its current point position)
+- or a precise position in a buffer (\"position landmark\").
+
+Like registers, each landmark is identified uniquely by a character
+but this is anecdotical. More importantly it is also attached to a
+**key of your keyboard**. Jumping to the landmark is done by hitting
+that key (typically a numpad key or a "f" key).
+
+Unlike registers, (position) landmarks are visible. This is
+configurable using `landmark-face`, `landmark-show-landmark-position`
+and `landmark-show-landmark-fringe`.
 
 ## Installation
 
@@ -85,23 +97,7 @@ jumping to landmark `?1` instead of `numpad-1`:
 By the way: be careful with shift and numpad, as `shift numpad 1`
 gives `(shift kp-end)` instead of `(shift kp-1)`.
 
+# Implementation
 
-## Explanations and Configurations
-
-Similarly to an emacs registers, a *landmark* is a location where you
-might want to come back later. Unlike registers it is either
-
-- a buffer (jumping back to a \"buffer landmark\" jumps to the buffer
-  at its current point position)
-- or a precise position in a buffer (\"position landmark\").
-
-Like registers, each landmark is identified uniquely by a character
-but this is anecdotical. More importantly it is also (by default)
-attached to a **key of your keyboard**.
-
-### Visual feedback
-
-Position landmarks are by default highlighted (box style). This is
-configurable using `landmark-face`, `landmark-show-landmark-position`
-and `landmark-show-landmark-fringe`.
+Technically this is a simple wapper on registers.
 
