@@ -88,12 +88,12 @@ a landmark. For instance the follwing call is equivalent to
 (landmark-assign-keys ?0 [(control kp-0)] [(control shift kp-insert)] [(kp-0)])
 ```
 
-The following binds `shift + numpad-1` (instead of `numpad-1`) to jumping to landmark `?1`:
+The following binds `shift + numpad-0` (instead of `numpad-0`) to jumping to landmark `?0`:
 ```elisp
 (landmark-assign-keys ?0 [(control kp-0)] [(control shift kp-insert)] [(shift kp-insert)])
 ```
 By the way: be careful with `shift` and numpad keys: here `shift numpad 0` is
-recognized by emacs as `(shift kp-insert)` instead of `(shift kp-1)`.
+recognized by emacs as `(shift kp-insert)` instead of `(shift kp-0)`.
 
 # Implementation
 
