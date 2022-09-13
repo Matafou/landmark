@@ -2,10 +2,10 @@
 
 This package provides so called "landmarks" to emacs.
 
-Landmarks are a fast navigation facility for emacs, based on emacs
-"registers", but faster to use. Similarly to an emacs register, a
+Landmarks are a fast navigation facility for emacs, very similar to
+bookmarks, but faster to use. Similarly to an emacs register, a
 landmark is a location where you might want to come back later. Unlike
-registers it is either
+bookmarks it is either:
 
 - a buffer (jumping back to a \"buffer landmark\" jumps to the buffer
   at its current point position)
@@ -14,11 +14,13 @@ registers it is either
 Like registers, each landmark is identified uniquely by a character
 but this is anecdotical. More importantly it is also attached to a
 **key of your keyboard**. Jumping to the landmark is done by hitting
-that key (typically a numpad key or a "f" key).
+that key (typically a numpad key or an "f" key).
 
-Unlike registers, (position) landmarks are visible. This is
+Unlike bookmarks, (position) landmarks are visible. This is
 configurable using `landmark-face`, `landmark-show-landmark-position`
 and `landmark-show-landmark-fringe`.
+
+See the end of this fiole for a comparison with the excellent `bm.el`.
 
 ## Installation
 
@@ -29,24 +31,20 @@ Then add the following line to your init file:
 (require 'landmark)
 ```
 
-Then if you have a numeric pad on your keyboard you should try this
-predefined configuration, which maps a landmark to each numpad number
-keys `kp-0` to `kp-9`:
+Then you can add one or several of the following lines, depending on which kind of keyboard keys you want to dedicate to landmarks:
 
-```
-(landmark-assign-kp-n-config) ;; if you have a numpad
+```elisp
+(landmark-assign-kp-n-config) ;; for kp-0 to kp-9 numpad keys
+(landmark-assign-fn-config)  ;; for f5 to f9 keys
+(landmark-assign-kp-cycle-config) ;; for cycling buffers with C-<kp-enter/add>
+                                  ;; and positions with  C-S-<kp-enter/add>
+(landmark-assign-mwheel-config) ;; for cycling buffers with C-M-mwheel
 ```
 
 (Be aware that it loads predefined **global** keybindings).
 
-If you don't have a numpad you should experiment with the predefined
-configuration which maps a landmark to each `F5` to `F9` keys using
-"F" keys:
-
-
-```elisp
-(landmark-assign-fn-config)  ;; if you have "fn" keys
-```
+You can customize keybindings with functions described in below
+("Refine your configuration").
 
 ## Tutorial
 
@@ -69,14 +67,13 @@ the prefix, the more precise is the landmark.
 
 ## Refine your configuration
 
-If you are not happy with the two predefined configurations
-(`(landmark-assign-kp-n-config)` or `(landmark-assign-fn-config) `),
+If you are not happy with the predefined configurations
+(`(landmark-assign-kp-n-config)`, `(landmark-assign-fn-config) `...),
 you can map keys differently. For that you have two possible levels of
 configuration:
 
 1. `(landmark-assign-three-standard-keys CHAR KEY-SYMB)` assigns the
-three variants of the keystrokes `KEY-SYMB` to landmark CHAR. See below for
-details.
+three variants of the keystrokes `KEY-SYMB` to landmark CHAR. For instance:
 ```elisp
 (landmark-assign-three-standard-keys ?0 'kp-0)
 (landmark-assign-three-standard-keys ?0 'kp-insert)
@@ -88,7 +85,8 @@ a landmark. For instance the follwing call is equivalent to
 (landmark-assign-keys ?0 [(control kp-0)] [(control shift kp-insert)] [(kp-0)])
 ```
 
-The following binds `shift + numpad-0` (instead of `numpad-0`) to jumping to landmark `?0`:
+The following binds `shift + numpad-0` (instead of `numpad-0`) to
+jumping to landmark `?0`:
 ```elisp
 (landmark-assign-keys ?0 [(control kp-0)] [(control shift kp-insert)] [(shift kp-insert)])
 ```
@@ -97,5 +95,38 @@ recognized by emacs as `(shift kp-insert)` instead of `(shift kp-0)`.
 
 # Implementation
 
-Technically this is a simple wapper on registers.
+Technically quite simple using markers, markers and overlays.
 
+# Similar packages
+
+## `bm.el`
+
+The very nice `bm.el` (https://github.com/joodland/bm) provides a
+similar feature. However there a subtle differences:
+
+- Each landmark is linked to a different key, so navigating is not
+  done by cycling but rather by hitting the landmark key.
+- Only global landmarks can be defined currently whereas `bm.el`
+  provides global or local bookmarks.
+- Position landmarks store a location whereas thet store a line in
+  `bm.el`.
+- Buffer landmarks allow to simply switch to a given buffer exactly
+  like `C-x b`(`switch-to-buffer`) but faster.
+- There is currently no persistent landmarks whereas `bm.el` provides
+  persistent bookmarks.
+
+All in all this makes landmarks a bit more flexible: it allows
+navigating inside buffers but also from buffer to buffer.
+
+It is faster because you jump directly to the landmark you want
+instead of cycling but the drawback is that you need one "free" key of
+your keyboard per landmark.
+
+
+# Known bugs
+
+- Several landmarks on the same line is perfectly fine, but only one
+  of them is signaled in the fringe. You can jump to each of them
+  anyways.
+- Undoing after editing at landmark position restores the landmark's
+  position and, in principle its fringe indicator.
