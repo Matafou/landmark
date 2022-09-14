@@ -93,6 +93,15 @@ jumping to landmark `?0`:
 By the way: be careful with `shift` and numpad keys: here `shift numpad 0` is
 recognized by emacs as `(shift kp-insert)` instead of `(shift kp-0)`.
 
+## Removing a landmark
+
+Buffer landmarks are not removable.
+
+Position landmarks can be removed by hitting the creating shortcut
+(typically C-S-...) when the point is at its location. Hence if point
+is not at its location hitting the the shorcut twice will remove from
+a distance.
+
 # Implementation
 
 Technically quite simple using markers, markers and overlays.

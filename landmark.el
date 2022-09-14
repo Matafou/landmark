@@ -288,23 +288,33 @@ Delete previous landmark N in the process."
     (?9 . landmark-fringe-nine))
   "The alist of fringe bitmaps for landmarks.")
 
+(defun landmark-delete (ov n m)
+  "Delete landmark N, with its overlay OV and marker M."
+  (setq landmark-buffer-alist (assq-delete-all n landmark-buffer-alist))
+  (setq landmark-overlay-alist (assq-delete-all n landmark-overlay-alist))
+  (setq landmark-marker-alist (assq-delete-all n landmark-marker-alist))
+  (delete-overlay ov)
+  (set-marker m nil))
+
 ;; It is hard to have highlighting behave correctly, in particular
-;; when we on the overlay. Erasing, extending the overlay does not
-;; trigger its modification-hooks. The solution I found was to refresh
+;; when we edit on the overlay. Especially Erasing the overlay and
+;; then undoing make things wrong. The solution I found was to refresh
 ;; all landmarks overlay wrt their marker when emacs is idle. It is
 ;; simple and not too expensive: there are not many landmarks at a
 ;; time: even if each numpad key is bound to a landmark, that makes
-;; only ten of them.
-(defun landmark-refresh-overlay (ov n)
+;; only ten of them. It is however not very satisfying.
+(defun landmark-refresh-overlay (ov n m)
   "Hook updating the overlay OV of a landmark when its marker N changed."
-  (let* ((m (cdr (assq n landmark-marker-alist)))
-         (pos (marker-position m)))
-    (when pos (move-overlay ov pos (+ 1 pos)))))
+  (let* ((pos (and n (marker-position m))))
+    (if pos (move-overlay ov pos (+ 1 pos))
+      (landmark-delete ov n m))))
 
 (defun landmark--refresh (alist-elt)
   "Refresh one landmark overlay wrt to the marker of the landmark.
 Argument ALIST-ELT is an cons value coming from an alist."
-  (landmark-refresh-overlay (cdr alist-elt) (car alist-elt)))
+  (let* ((n (car alist-elt)) (ov (cdr alist-elt))
+         (m (and ov (overlay-get ov 'marker))))
+  (landmark-refresh-overlay ov n m)))
 
 (defun landmark-refresh-all-overlays ()
   "Refresh highlighting of landmarks in case we edit them.
@@ -314,37 +324,58 @@ seconds."
   (cl-mapc 'landmark--refresh landmark-overlay-alist))
 
 
+(defun landmark--modification-hook (ov after beg end &optional lgthbefore)
+  "Hook called when the overlay of a landmark is modified.
+
+This does not capture all the possible modification of the
+overlay, especially by undoing."
+  (landmark-refresh-all-overlays))
 
 (run-with-idle-timer landmark-refresh-delay t 'landmark-refresh-all-overlays)
 
+
 ;;;###autoload
 (defun landmark-of-position (n)
-  "Assign landmark N to the current position.
+  "Assign landmark N to the current position, or delete it if already there.
 Delete previous landmark N in the process."
   (interactive)
-  (let ((oldov (cdr (assq n landmark-overlay-alist)))
-        (oldm (cdr (assq n landmark-marker-alist)))
-        (m (point-marker)))
+  (let* ((oldov (cdr (assq n landmark-overlay-alist)))
+         (oldm (and oldov (overlay-get oldov 'marker)))
+         (old-already-there (and oldm (eq (marker-position oldm) (point))))
+         )
     (setq landmark-buffer-alist (assq-delete-all n landmark-buffer-alist))
     (setq landmark-marker-alist (assq-delete-all n landmark-marker-alist))
+    (setq landmark-overlay-alist (assq-delete-all n landmark-overlay-alist))
     (when oldm (set-marker oldm nil));; markers slow down emacs, let's clean up
     (when oldov (delete-overlay oldov))
-    (let ((sovl (make-overlay (point)(+ 1 (point)) nil t t)))
-      (overlay-put sovl 'landmark n)
-      (overlay-put sovl 'help-echo (concat "Landmark " (char-to-string n)))
-      (when landmark-show-landmark-position (overlay-put sovl 'face 'landmark-face))
-      (when landmark-show-landmark-fringe
-        (let ((bmp (alist-get n landmark--bmp-alist)))
-           (overlay-put sovl 'before-string
-                        (propertize "A" 'display `(left-fringe ,bmp)))))
-      ;; This does not work properly: it is not triggered when one
-      ;; delete or insert chars of the overlay (?) We prefer refreshing
-      ;; landmarks with run-with-idle-timer instead. This is
-      ;; disappointing. FTR I also tried to add-advice the set-marker
-      ;; function, but it triggers all the time
-      ;;(overlay-put sovl 'modification-hooks '(landmark--overlay-follow-marker))
-      (push `(,n . ,sovl)  landmark-overlay-alist)
-      (push `(,n . ,m) landmark-marker-alist))))
+    (when (not old-already-there)
+      (let ((m (point-marker))
+            (sovl (make-overlay (point)(+ 1 (point)) nil t t)))
+        (overlay-put sovl 'landmark n)
+        (overlay-put sovl 'marker m)
+        (overlay-put sovl 'help-echo (concat "Landmark " (char-to-string n)))
+        (when landmark-show-landmark-position (overlay-put sovl 'face 'landmark-face))
+        (when landmark-show-landmark-fringe
+          (let ((bmp (alist-get n landmark--bmp-alist)))
+            (overlay-put sovl 'before-string
+                         (propertize "A" 'display `(left-fringe ,bmp)))))
+        ;; Setting the modification hooks is not enough.
+        ;; modification-hooks are not triggeres when we want. For
+        ;; instance when undoing the deletion of a all char of the
+        ;; overlay, it is not.
+        ;;
+        ;; The solution I found is to use an idle-timer to refresh all
+        ;; landmarks. This is disappointing but not dangerous: there can
+        ;; only be as many landmarks as dedicated keys on the keyboard.
+        ;; That would not be much more than ten.
+        ;;
+        ;; FTR I also tried to add-advice the set-marker function, but
+        ;; many markers do change all the time, I gave up quickly.
+        (overlay-put sovl 'modification-hooks '(landmark--modification-hook))
+        ;;(overlay-put sovl 'insert-behind-hooks '(landmark--modification-hook))
+        ;;(overlay-put sovl 'insert-in-front-hooks '(landmark--modification-hook))
+        (push `(,n . ,sovl)  landmark-overlay-alist)
+        (push `(,n . ,m) landmark-marker-alist)))))
 
 ;;;###autoload
 (defun landmark-jump (n)
