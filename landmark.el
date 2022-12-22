@@ -231,7 +231,7 @@ and `landmark-uninteresting-buffer-exception-regexp'."
 (defun landmark-bury-buffer ()
   "Bury current buffer and switch to:
 - first interesting buffer in (buffer-list) if it exists
-     - first buffer of (buffer-list) otherwise"
+- first buffer of (buffer-list) otherwise"
   (interactive)
   (bury-buffer)
   (let* ((intbuf (landmark--find-first-interesting (buffer-list))))
@@ -382,7 +382,9 @@ Delete previous landmark N in the process."
   "Jump to the landmark named by char N."
   (interactive)
   (if (assq n landmark-buffer-alist) (landmark--unbury-buffer n)
-    (goto-char (cdr (assq n landmark-marker-alist)))))
+    (let ((mrk (cdr (assq n landmark-marker-alist))))
+      (switch-to-buffer (marker-buffer mrk))
+      (goto-char (marker-position mrk)))))
 
 (defun landmark--min-after-point (acc elt)
   "Return ELT if it is a b etter candidate than ACC for the next landmark."

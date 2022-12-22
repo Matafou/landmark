@@ -111,25 +111,29 @@ Technically quite simple using markers, markers and overlays.
 ## `bm.el`
 
 The very nice `bm.el` (https://github.com/joodland/bm) provides a
-similar feature. However there a subtle differences:
+similar feature. However there a subtle differences (classified by
+opinionated + and -):
 
-- Each landmark is linked to a different key, so navigating is not
-  done by cycling but rather by hitting the landmark key.
-- Only global landmarks can be defined currently whereas `bm.el`
-  provides global or local bookmarks.
-- Position landmarks store a location whereas thet store a line in
++ + Each landmark is linked to a different key, so navigating is not
+  + done by cycling but rather by hitting the landmark key.
++ Position landmarks store a location whereas they store a line in
   `bm.el`.
-- Buffer landmarks allow to simply switch to a given buffer exactly
++ + Buffer landmarks allow to simply switch to a given buffer exactly
   like `C-x b`(`switch-to-buffer`) but faster.
-- There is currently no persistent landmarks whereas `bm.el` provides
+- - you need one "free" key of your keyboard per landmark.
+- - There is currently no persistent landmarks whereas `bm.el` provides
   persistent bookmarks.
+- - Only global landmarks can be defined currently whereas `bm.el`
+  provides global or local bookmarks.
 
-All in all this makes landmarks a bit more flexible: it allows
-navigating inside buffers but also from buffer to buffer.
+All in all, and except for persistent missing landmarks, this makes
+landmarks a bit  faster and more flexible:
 
-It is faster because you jump directly to the landmark you want
-instead of cycling but the drawback is that you need one "free" key of
-your keyboard per landmark.
+- flexible because it mixes navigating inside buffers and
+  from buffer to buffer.
+- It is faster because you jump directly to the landmark you want
+  instead of cycling but the drawback is that you need one "free" key of
+  your keyboard per landmark.
 
 
 # Known bugs
