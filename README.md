@@ -13,14 +13,16 @@ bookmarks it is either:
 
 Like registers, each landmark is identified uniquely by a character
 but this is anecdotical. More importantly it is also attached to a
-**key of your keyboard**. Jumping to the landmark is done by hitting
-that key (typically a numpad key or an "f" key).
+**key of your keyboard** (any keystroke actually but it is
+particularly fast if this keystroke is simple). Jumping to the
+landmark is done by hitting that key (typically a numpad key or an "f"
+key).
 
 Unlike bookmarks, (position) landmarks are visible. This is
 configurable using `landmark-face`, `landmark-show-landmark-position`
 and `landmark-show-landmark-fringe`.
 
-See the end of this fiole for a comparison with the excellent `bm.el`.
+See the end of this file for a comparison with the excellent `bm.el`.
 
 ## Installation
 
@@ -73,24 +75,24 @@ you can map keys differently. For that you have two possible levels of
 configuration:
 
 1. `(landmark-assign-three-standard-keys CHAR KEY-SYMB)` assigns the
-three variants of the keystrokes `KEY-SYMB` to landmark CHAR. For instance:
+   three variants of the keystrokes `KEY-SYMB` (i.e. `KEY-SYMB`
+   itself, `C-KEY-SYMB` and `C-S-KEY-SYMB`) to landmark CHAR. Example:
 ```elisp
 (landmark-assign-three-standard-keys ?0 'kp-0)
-(landmark-assign-three-standard-keys ?0 'kp-insert)
 ```
 2. `landmark-assign-keys` for mapping three independent keystrokes to
-a landmark. For instance the follwing call is equivalent to
-`(landmark-assign-three-standard-keys ?0 'kp-0)`: 
+a landmark. For instance the following call is equivalent to
+`(landmark-assign-three-standard-keys ?0 'kp-0)` (note the subtle use
+of `kp-insert`, see the remark below):
+
 ```elisp
 (landmark-assign-keys ?0 [(control kp-0)] [(control shift kp-insert)] [(kp-0)])
 ```
 
 The following binds `shift + numpad-0` (instead of `numpad-0`) to
-jumping to landmark `?0`:
-```elisp
-(landmark-assign-keys ?0 [(control kp-0)] [(control shift kp-insert)] [(shift kp-insert)])
-```
-By the way: be careful with `shift` and numpad keys: here `shift numpad 0` is
+jumping to landmark `?0`: ```elisp (landmark-assign-keys ?0 [(control
+kp-0)] [(control shift kp-insert)] [(shift kp-insert)]) ``` By the
+way: be careful with `shift` and numpad keys: here `shift numpad 0` is
 recognized by emacs as `(shift kp-insert)` instead of `(shift kp-0)`.
 
 ## Removing a landmark
@@ -99,8 +101,7 @@ Buffer landmarks are not removable.
 
 Position landmarks can be removed by hitting the creating shortcut
 (typically C-S-...) when the point is at its location. Hence if point
-is not at its location hitting the the shorcut twice will remove from
-a distance.
+is not at its location **hitting the shorcut twice** will remove it.
 
 # Implementation
 
@@ -132,8 +133,8 @@ landmarks a bit  faster and more flexible:
 - flexible because it mixes navigating inside buffers and
   from buffer to buffer.
 - It is faster because you jump directly to the landmark you want
-  instead of cycling but the drawback is that you need one "free" key of
-  your keyboard per landmark.
+  instead of cycling but the drawback is that you need one "free" key
+  (or keystroke) of your keyboard per landmark.
 
 
 # Known bugs
