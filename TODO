@@ -1,0 +1,7 @@
+List of possible improvements, not garanteed to happen:
+
+- add persistency of landmarks
+
+- possibility of making positional landmark per-buffer, to factorize
+  keystrokes. That needs to store one landmark-marker-alist per buffer.
+
